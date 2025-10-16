@@ -1,15 +1,23 @@
+import { BrowserRouter, Route } from "react-router-dom";
 import "./App.css";
+import AdminPage from "./pages/homePage";
+import HomePage from "./pages/homePage";
+import LoginPage from "./pages/loginPage";
+import RegisterPage from "./pages/registerPage";
+import { Routes } from "react-router";
 
 function App() {
   return (
-    <div className="border w-[600px] h-[600px] bg-gray-400 relative">
-      <div className="w-[500px] h-[500px] bg-yellow-100 flex flex-col items-center justify-center">
-        <div className="w-[100px] h-[100px] bg-blue-600"></div>
-        <div className="w-[100px] h-[100px] bg-red-600 fixed left-[550px] top-[550px]"></div>
-        <div className="w-[100px] h-[100px] bg-green-600"></div>
-        <div className="w-[100px] h-[100px] absolute right-[80px] bottom-[80px] bg-pink-600"></div>
+    <BrowserRouter>
+      <div className="w-full h-screen bg-primary text-secondary ">
+        <Routes path="/">
+          <Route path="/" element={<HomePage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Routes>
       </div>
-    </div>
+    </BrowserRouter>
   );
 }
 
