@@ -74,7 +74,7 @@ export default function AdminAddProductPage() {
   }
 
   return (
-    <div className="w-full h-full flex justify-center p-[50px] items-start overflow-y-scroll ">
+    <div className="w-full flex justify-center p-[50px]">
       <div className=" bg-accent/80 rounded-2xl p-[40px] w-[800px] shadow-2xl overflow-y-visible">
         <h1 className="w-full text-xl text-primary mb-[20px] flex items-center gap-[5px]">
           <AiOutlineProduct /> Add New Product
