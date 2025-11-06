@@ -2,8 +2,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { BiPlus } from "react-icons/bi";
 import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
 import Loader from "../../components/loader";
+import ProductDeleteButton from "../../components/productDeleteButton";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -29,7 +29,7 @@ export default function AdminProductsPage() {
       {loaded ? (
         <table
           className="w-full max-w-7xl table-auto border-separate border-spacing-0
-rounded-2xl overflow-hidden shadow-xl bg-white/70 backdrop-blur
+rounded-2xl overflow-hidden shadow-xl bg-white/70
 supports-[backdrop-filter]:bg-white/60"
         >
           <thead className="sticky top-0 z-10">
@@ -117,33 +117,12 @@ supports-[backdrop-filter]:bg-white/60"
                   <td className="px-4 py-3 text-sm">
                     {/* placeholder cell for future actions; styled for consistency */}
                     <div className="inline-flex items-center gap-2 ">
-                      <button
-                        onClick={() => {
-                          const token = localStorage.getItem("token");
-                          axios
-                            .delete(
-                              import.meta.env.VITE_BACKEND_URL +
-                                "/products/" +
-                                item.productID,
-                              {
-                                headers: {
-                                  Authorization: `Bearer ${token}`,
-                                },
-                              }
-                            )
-                            .then(() => {
-                              toast.success("Product deleted successfully!");
-                              setLoaded(false);
-                            })
-                            .catch((error) => {
-                              console.error(error);
-                              toast.error("Failed to delete product!");
-                            });
+                      <ProductDeleteButton
+                        productID={item.productID}
+                        reload={() => {
+                          setLoaded(false);
                         }}
-                        className="w-[100px] bg-red-500 flex justify-center items-center text-white p-2 rounded-lg cursor-pointer hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
+                      />
                     </div>
                   </td>
                 </tr>
