@@ -2,12 +2,14 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { BiPlus } from "react-icons/bi";
 import { Link } from "react-router-dom";
-import Loader from "../../components/loader";
+import { useNavigate } from "react-router-dom";
 import ProductDeleteButton from "../../components/productDeleteButton";
+import Loader from "../../components/Loader";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [loaded, setLoaded] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!loaded) {
@@ -117,6 +119,23 @@ supports-[backdrop-filter]:bg-white/60"
                   <td className="px-4 py-3 text-sm">
                     {/* placeholder cell for future actions; styled for consistency */}
                     <div className="inline-flex items-center gap-2 ">
+                      {/* <Link
+                        to="/admin/update-product"
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                        state={item}
+                      >
+                        Edit
+                      </Link> */}
+
+                      <button
+                        onClick={() => {
+                          navigate("/admin/update-product", { state: item });
+                        }}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                      >
+                        Edit
+                      </button>
+
                       <ProductDeleteButton
                         productID={item.productID}
                         reload={() => {
