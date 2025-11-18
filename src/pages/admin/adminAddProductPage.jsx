@@ -3,6 +3,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { AiOutlineProduct } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
+import Loader from "../../components/Loader";
 import uploadfile from "../../utils/mediaUplod";
 
 export default function AdminAddProductPage() {
@@ -18,30 +19,18 @@ export default function AdminAddProductPage() {
   const [model, setModel] = useState("");
   const [stock, setStock] = useState(0);
   const [isAvailable, setIsAvailable] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   async function addProduct() {
+    if (isSubmitting) {
+      return;
+    }
+
     const token = localStorage.getItem("token");
     if (token == null) {
       toast.error("You must be logged in as admin to add products.");
       navigate("/login");
-      return;
-    }
-
-    console.log(files);
-    const imagepromises = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const promise = uploadfile(files[i]);
-      imagepromises.push(promise);
-    }
-
-    let images = [];
-    try {
-      images = await Promise.all(imagepromises);
-    } catch (err) {
-      toast.error("Error uploading images. Please try again.");
-      console.log("Error uploading images:", err);
       return;
     }
 
@@ -57,7 +46,15 @@ export default function AdminAddProductPage() {
       return;
     }
 
+    setIsSubmitting(true);
+
+    const imagePromises = [];
+    for (let i = 0; i < files.length; i++) {
+      imagePromises.push(uploadfile(files[i]));
+    }
+
     try {
+      const images = await Promise.all(imagePromises);
       const altNamesInArray = altNames.split(",");
       await axios.post(
         import.meta.env.VITE_BACKEND_URL + "/products/",
@@ -87,11 +84,14 @@ export default function AdminAddProductPage() {
       toast.error("Error adding product. Please try again.");
       console.log("Error adding product:");
       console.log(err);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <div className="w-full flex justify-center p-[50px]">
+    <div className="w-full flex justify-center p-[50px] relative">
+      {isSubmitting && <Loader />}
       <div className=" bg-accent/80 rounded-2xl p-[40px] w-[800px] shadow-2xl overflow-y-visible">
         <h1 className="w-full text-xl text-primary mb-[20px] flex items-center gap-[5px]">
           <AiOutlineProduct /> Add New Product
@@ -256,7 +256,8 @@ export default function AdminAddProductPage() {
           </Link>
           <button
             onClick={addProduct}
-            className="w-[49%] h-[50px] bg-accent text-white font-bold  rounded-2xl hover:bg-transparent hover:text-accent border-[2px] border-accent mt-[20px]"
+            disabled={isSubmitting}
+            className="w-[49%] h-[50px] bg-accent text-white font-bold  rounded-2xl hover:bg-transparent hover:text-accent border-[2px] border-accent mt-[20px] disabled:bg-accent/60 disabled:hover:text-white disabled:cursor-not-allowed"
           >
             Add Product
           </button>

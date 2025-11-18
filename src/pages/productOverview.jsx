@@ -1,105 +1,94 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Loader from "../components/Loader";
+import ImageSlider from "../components/imageSlider";
+import { CgChevronRight } from "react-icons/cg";
+import { addToCart } from "../utils/cart";
 
 export default function ProductOverview() {
-  const params = useParams();
   const navigate = useNavigate();
+  const params = useParams();
   const [product, setProduct] = useState(null);
-  const [status, setStatus] = useState("loading");
+  const [status, setStatus] = useState("loading"); //loading, error, success
 
   useEffect(() => {
-    if (status === "loading") {
+    if (status == "loading") {
       axios
-        .get(`${import.meta.env.VITE_BACKEND_URL}/products/${params.productID}`)
+        .get(import.meta.env.VITE_BACKEND_URL + "/products/" + params.productID)
         .then((response) => {
           setProduct(response.data);
           setStatus("success");
         })
         .catch(() => {
-          toast.error("Product not found");
+          toast.error("Product Not Found");
           setStatus("error");
         });
     }
-  }, [status, params.productID]);
-
-  function addToCart() {
-    // (You can later connect this to your cart context / local storage)
-    toast.success(`${product.name} added to cart!`);
-  }
-
+  }, []);
   return (
-    <div className="w-full min-h-[calc(100vh-100px)] bg-white text-gray-800 flex justify-center items-center p-6 sm:p-10">
-      {status === "loading" && <Loader />}
-
-      {status === "error" && (
-        <h1 className="text-center mt-10 text-2xl font-semibold text-red-600">
-          ❌ Error loading product
-        </h1>
+    <>
+      {status == "loading" && <Loader />}
+      {status == "error" && (
+        <h1 className="text-center mt-10 text-2xl">Error loading product.</h1>
       )}
-
-      {status === "success" && (
-        <div className="w-full max-w-6xl bg-gray-50 rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-          {/* ===== Left Section (Image Gallery) ===== */}
-          <div className="md:w-1/2 w-full bg-white flex items-center justify-center p-6 border-b md:border-b-0 md:border-r border-gray-200">
-            <img
-              src={product.images?.[0]}
-              alt={product.name}
-              className="max-w-[90%] max-h-[400px] object-contain rounded-xl hover:scale-105 transition-transform duration-500"
-            />
+      {status == "success" && (
+        <div className="w-full h-[calc(100vh-100px)] flex ">
+          <div className="w-1/2 h-full flex justify-center items-center">
+            <ImageSlider images={product.images} />
           </div>
-
-          {/* ===== Right Section (Details) ===== */}
-          <div className="md:w-1/2 w-full p-8 flex flex-col justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-4 text-se">
-                {product.name}
-              </h1>
-              <p className="text-gray-700 mb-6 leading-relaxed">
-                {product.description}
-              </p>
-
-              <div className="flex flex-col mb-6">
-                {product.labelledPrice > product.price && (
-                  <h2 className="text-gray-500 line-through text-lg">
-                    LKR {product.labelledPrice.toFixed(2)}
-                  </h2>
-                )}
-                <h2 className="text-accent font-extrabold text-3xl">
-                  LKR {product.price.toFixed(2)}
+          <div className="w-1/2 h-full p-10 flex flex-col gap-6">
+            <h1 className="text-4xl font-semibold">{product.name}</h1>
+            <h2 className="text-lg text-secondary/80">{product.productID}</h2>
+            <h3 className="text-lg text-secondary/80 flex items-center">
+              <CgChevronRight /> {product.category}
+            </h3>
+            <p className="text-md text-justify text-secondary/90  h-32 overflow-y-auto">
+              {product.description}
+            </p>
+            <div className="w-full ">
+              {product.labelledPrice > product.price && (
+                <h2 className="text-secondary/80 line-through decoration-gold/70 decoration-2 mr-2 text-xl">
+                  LKR. {product.labelledPrice.toFixed(2)}
                 </h2>
-              </div>
-
-              <p className="text-sm text-gray-500 mb-2">
-                <span className="font-semibold">Brand:</span> {product.brand}
-              </p>
-              <p className="text-sm text-gray-500 mb-6">
-                <span className="font-semibold">Category:</span>{" "}
-                {product.category}
-              </p>
+              )}
+              <h2 className="text-accent font-semibold text-3xl">
+                LKR. {product.price.toFixed(2)}
+              </h2>
             </div>
-
-            {/* ===== Buttons ===== */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <div className="w-full flex flex-row gap-4 mt-4">
               <button
-                onClick={addToCart}
-                className="bg-accent text-white px-6 py-3 rounded-xl text-lg font-semibold shadow-md hover:bg-primary-dark transition duration-300"
+                onClick={() => {
+                  addToCart(product, 1);
+                }}
+                className="bg-accent text-white px-6 py-3 rounded hover:bg-accent/90 transition"
               >
-                🛒 Add to Cart
+                Add to Cart
               </button>
-
               <button
-                onClick={() => navigate("/products")}
-                className="bg-gray-200 text-gray-700 px-6 py-3 rounded-xl text-lg font-semibold shadow-md hover:bg-gray-300 transition duration-300"
+                onClick={() => {
+                  navigate("/checkout", {
+                    state: [
+                      {
+                        productID: product.productID,
+                        name: product.name,
+                        price: product.price,
+                        labelledPrice: product.labelledPrice,
+                        image: product.images[0],
+                        quantity: 1,
+                      },
+                    ],
+                  });
+                }}
+                className="border-2 border-accent text-accent px-6 py-3 rounded hover:bg-accent hover:text-white transition"
               >
-                ← Back to Products
+                Buy Now
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
