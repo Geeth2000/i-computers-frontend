@@ -14,6 +14,7 @@ export default function ImageSlider(props) {
         {images.map((image, index) => {
           return (
             <img
+              key={index}
               src={image}
               className={
                 "w-[80px] h-[80px] object-cover rounded-lg cursor-pointer" +
