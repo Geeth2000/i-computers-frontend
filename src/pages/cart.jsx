@@ -7,15 +7,32 @@ export default function CartPage() {
   const [cart, setCart] = useState(getCart());
 
   return (
-    <div className="w-full flex flex-col items-center p-[20px]">
-      {cart.map((item) => {
+    <div className="w-full  flex flex-col items-center p-[20px]">
+      {cart.map((item, index) => {
         return (
-          <div className="w-[50%] h-[150px] rounded-xl overflow-hidden shadow-2xl my-1 flex justify-between">
-            <img
-              src={item.image}
-              className="h-full aspect-square object-cover"
-            />
-            <div className="flex flex-col justify-center pl-4 w-[300px]">
+          <div
+            key={index}
+            className="w-full relative lg:w-[50%] lg:h-[150px] pt-[20px] rounded-xl overflow-hidden shadow-2xl my-1 flex justify-between"
+          >
+            <h1 className="lg:hidden overflow-hidden w-full h-[25px] absolute top-[0px] ">
+              {item.name}
+            </h1>
+            <div className="h-full flex flex-col">
+              <img
+                src={item.image}
+                className="h-[80px] lg:h-full mt-[10px] aspect-square object-cover"
+              />
+              {item.labelledPrice > item.price && (
+                <h2 className="text-secondary/80 line-through decoration-gold/70 decoration-2 mr-2 text-sm lg:hidden">
+                  LKR. {item.labelledPrice.toFixed(2)}
+                </h2>
+              )}
+              <h2 className=" text-accent font-semibold mt-2 text-sm lg:hidden">
+                LKR. {item.price.toFixed(2)}
+              </h2>
+            </div>
+
+            <div className="hidden lg:flex flex-col justify-center pl-4 w-[300px]">
               <h1 className="text-2xl font-semibold relative hover:[&_.tooltip]:opacity-100">
                 <span className="opacity-0 tooltip italic text-sm absolute bottom-[-50px] bg-accent text-white p-2 rounded-lg">
                   {item.name}
@@ -34,7 +51,7 @@ export default function CartPage() {
               </h2>
               <h3 className="text-lg mt-2">{item.productID}</h3>
             </div>
-            <div className="h-full flex flex-row items-center gap-4">
+            <div className="min-h-full flex flex-row items-center gap-4">
               <div className="h-full flex flex-col justify-center items-center">
                 <BsChevronUp
                   onClick={() => {
@@ -61,7 +78,7 @@ export default function CartPage() {
           </div>
         );
       })}
-      <div className="w-[50%] h-[150px] rounded-xl overflow-hidden shadow-2xl my-1 flex justify-between items-center">
+      <div className="w-full lg:w-[50%] h-[150px] rounded-xl overflow-hidden shadow-2xl my-1 flex justify-between items-center">
         <Link
           to="/checkout"
           className="self-center ml-4 px-6 py-3 rounded bg-accent text-white hover:bg-accent/90 transition"

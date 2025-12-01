@@ -2,16 +2,53 @@ import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import Loader from "../components/Loader";
+import { GrGoogle } from "react-icons/gr";
+import { useGoogleLogin } from "@react-oauth/google";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const googleLogin = useGoogleLogin({
+    onSuccess: (response) => {
+      setIsLoading(true);
+      axios
+        .post(import.meta.env.VITE_BACKEND_URL + "/users/google-login", {
+          token: response.access_token,
+        })
+        .then((res) => {
+          localStorage.setItem("token", res.data.token);
+          if (res.data.role == "admin") {
+            navigate("/admin");
+          } else {
+            navigate("/");
+          }
+          toast.success("Login successful!");
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          toast.error("Google login failed. Please try again.");
+          console.error("Error during Google login:", err);
+          setIsLoading(false);
+        });
+    },
+
+    onError: () => {
+      toast.error("Google login failed. Please try again.");
+    },
+    onNonOAuthError: () => {
+      toast.error("Google login failed. Please try again.");
+    },
+  });
+
   const navigate = useNavigate();
 
   async function login() {
     console.log("login button clicked");
     console.log("Email:", email);
     console.log("Password:", password);
+    setIsLoading(true);
 
     try {
       const res = await axios.post(
@@ -29,9 +66,11 @@ export default function LoginPage() {
         navigate("/");
       }
       toast.success("Login successful! welcome back.");
+      setIsLoading(false);
     } catch (error) {
       toast.error("Login failed. Please check your credentials.");
       console.error("Error during login:", error);
+      setIsLoading(false);
     }
   }
 
@@ -81,10 +120,19 @@ export default function LoginPage() {
 
           <button
             onClick={login}
-            className="w-full h-[45px] lg:h-[50px] bg-gold text-white text-[18px] lg:text-[20px] border-[2px] border-gold
+            className="w-full h-[45px] mb-[15px] lg:mb-[20px] lg:h-[50px] bg-gold text-white text-[18px] lg:text-[20px] border-[2px] border-gold
            font-bold rounded-lg hover:bg-transparent hover:text-gold transition"
           >
             Login
+          </button>
+
+          <button
+            onClick={googleLogin}
+            className="w-full h-[45px] lg:h-[50px] bg-gold text-white text-[18px] lg:text-[20px] border-[2px] border-gold
+           font-bold rounded-lg hover:bg-transparent hover:text-gold transition"
+          >
+            Login with{" "}
+            <GrGoogle className="inline ml-2 text-2xl justify-center" />
           </button>
 
           <p className="mt-[15px] lg:mt-[20px] text-white not-italic text-sm lg:text-base text-center">
@@ -95,6 +143,7 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+      {isLoading && <Loader />}
     </div>
   );
 }
