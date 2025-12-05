@@ -28,10 +28,14 @@ export default function UserData() {
   return (
     <>
       {user ? (
-        <div className="w-[150px] flex flex-row">
-          <img src={user.image} className="w-[50px] rounded-full h-[50px]" />
+        <div className="w-full md:w-[150px] flex flex-row items-center justify-end md:justify-start gap-2">
+          <img
+            src={user.image}
+            referrerPolicy="no-referrer"
+            className="w-[40px] h-[40px] md:w-[50px] md:h-[50px] rounded-full object-cover"
+          />
           <select
-            className="bg-transparent text-white outline-none ml-2"
+            className="bg-transparent text-white outline-none ml-1 text-sm md:text-base"
             value={selectedOption}
             onChange={(e) => {
               if (e.target.value == "logout") {
@@ -55,16 +59,16 @@ export default function UserData() {
           </select>
         </div>
       ) : (
-        <div className="w-[150px] flex flex-row">
+        <div className="w-full md:w-[150px] flex flex-row items-center justify-end md:justify-start gap-2">
           <Link
             to="/login"
-            className="mx-2 px-4 py-2 bg-white text-accent rounded-full"
+            className="px-3 py-1 md:px-4 md:py-2 bg-white text-accent rounded-full text-sm md:text-base"
           >
             Login
           </Link>
           <Link
             to="/register"
-            className="mx-2 px-4 py-2 bg-white text-accent rounded-full"
+            className="px-3 py-1 md:px-4 md:py-2 bg-white text-accent rounded-full text-sm md:text-base"
           >
             Register
           </Link>

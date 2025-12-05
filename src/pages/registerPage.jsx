@@ -63,9 +63,9 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-[url('/bg.png')] bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row">
+    <div className="w-full min-h-screen items-center justify-center bg-[url('/bg.png')] bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row">
       {/* Left Side - Image and Slogan */}
-      <div className="w-full lg:w-1/2 h-[300px] lg:h-full flex justify-center items-center flex-col p-5 lg:p-[50px] text-center">
+      <div className="w-full lg:w-1/2 m-[50px] h-[300px] lg:h-full flex justify-center items-center flex-col p-5 lg:p-[50px] text-center">
         <img
           src="/logo.png"
           alt="logo"
@@ -90,33 +90,33 @@ export default function RegisterPage() {
             onChange={(e) => setFirstName(e.target.value)}
             type="text"
             placeholder="Enter your first name"
-            className="w-full h-[45px] lg:h-[50px] mb-[15px] lg:mb-[20px] rounded-lg border border-primary text-[18px] lg:text-[20px] p-[10px] focus:outline-none focus:ring-2 focus:ring-gold"
+            className="w-full h-[45px] lg:h-[50px] text-white mb-[15px] lg:mb-[20px] rounded-lg border border-primary text-[18px] p-[10px] focus:outline-none focus:ring-2 focus:ring-gold"
           />
           <input
             onChange={(e) => setLastName(e.target.value)}
             type="text"
             placeholder="Enter your last name"
-            className="w-full h-[45px] lg:h-[50px] mb-[15px] lg:mb-[20px] rounded-lg border border-primary text-[18px] lg:text-[20px] p-[10px] focus:outline-none focus:ring-2 focus:ring-gold"
+            className="w-full h-[45px] lg:h-[50px] text-white mb-[15px] lg:mb-[20px] rounded-lg border border-primary text-[18px] p-[10px] focus:outline-none focus:ring-2 focus:ring-gold"
           />
 
           <input
             onChange={(e) => setEmail(e.target.value)}
             type="email"
             placeholder="Enter your email"
-            className="w-full h-[45px] lg:h-[50px] mb-[15px] lg:mb-[20px] rounded-lg border border-primary text-[18px] lg:text-[20px] p-[10px] focus:outline-none focus:ring-2 focus:ring-gold"
+            className="w-full h-[45px] lg:h-[50px] text-white mb-[15px] lg:mb-[20px] rounded-lg border border-primary text-[18px] p-[10px] focus:outline-none focus:ring-2 focus:ring-gold"
           />
           <input
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             placeholder="Enter your password"
-            className="w-full h-[45px] lg:h-[50px] mb-[15px] lg:mb-[20px] rounded-lg border border-primary text-[18px] lg:text-[20px] p-[10px] focus:outline-none focus:ring-2 focus:ring-gold"
+            className="w-full h-[45px] lg:h-[50px] text-white mb-[15px] lg:mb-[20px] rounded-lg border border-primary text-[18px] p-[10px] focus:outline-none focus:ring-2 focus:ring-gold"
           />
 
           <input
             onChange={(e) => setConfirmPassword(e.target.value)}
             type="password"
             placeholder="Confirm your password"
-            className="w-full h-[45px] lg:h-[50px] mb-[15px] lg:mb-[20px] rounded-lg border border-primary text-[18px] lg:text-[20px] p-[10px] focus:outline-none focus:ring-2 focus:ring-gold"
+            className="w-full h-[45px] lg:h-[50px] text-white mb-[15px] lg:mb-[20px] rounded-lg border border-primary text-[18px] p-[10px] focus:outline-none focus:ring-2 focus:ring-gold"
           />
 
           <button

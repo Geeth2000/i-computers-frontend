@@ -22,6 +22,7 @@ export default function Header() {
         <Link to="/products">Products</Link>
         <Link to="/about">About</Link>
         <Link to="/contact">Contact</Link>
+        <Link to="/reviews">Reviews</Link>
       </div>
 
       <div className="absolute right-22 h-full top-0 hidden lg:flex items-center">
@@ -75,6 +76,13 @@ export default function Header() {
                   onClick={() => setSidebarOpen(false)}
                 >
                   Contact
+                </a>
+                <a
+                  className="hover:text-secondary transition"
+                  href="/reviews"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  Reviews
                 </a>
                 <div className="flex justify-center items-center bg-accent rounded-4xl p-2">
                   <UserData />

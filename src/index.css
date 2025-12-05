@@ -1,28 +1,151 @@
+/* Tailwind Import */
 @import "tailwindcss";
 
+/* Theme Variables */
 @theme {
   --color-primary: #f7faff;
-  --color-secondary: #111827;
-  --color-accent: #111827;
+  --color-secondary: #0b2339;
+  --color-accent: #0b2339;
   --color-gold: #e29816;
 }
 
-/* styles/globals.css */
+/* ================================
+   SCROLLBAR UI (UPDATED + HOVER GLOW)
+===================================*/
 ::-webkit-scrollbar {
-  width: 8px; /* Adjust as needed */
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: transparent; /* Tailwind's gray-100 */
+  background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(2, 2, 2, 0.452); /* Tailwind's gray-500 */
-  border-radius: 4px; /* Optional: for rounded corners */
+  background-color: rgba(2, 2, 2, 0.5);
+  border-radius: 4px;
+  transition: 0.3s;
 }
 
-/* For Firefox */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #0b2339d3; /* Accent-like hover */
+  box-shadow: 0 0 6px #0b2339;
+}
+
+/* Firefox Support */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1; /* thumb color track color */
+  scrollbar-color: #555 transparent;
+}
+
+/* ================================
+   GLOBAL SMOOTH ANIMATIONS
+===================================*/
+@layer utilities {
+  /* Fade in */
+  .animate-fadeIn {
+    animation: fadeIn 1.2s ease forwards;
+  }
+
+  /* Slow fade */
+  .animate-fadeInSlow {
+    animation: fadeIn 2s ease forwards;
+  }
+
+  /* Slide from bottom */
+  .animate-slideUp {
+    animation: slideUp 1.3s ease forwards;
+  }
+
+  /* Slight pop card animation */
+  .animate-card {
+    animation: cardPop 1s ease forwards;
+  }
+
+  /* Floating effect (good for icons & headings) */
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Zoom In */
+  .animate-zoomIn {
+    animation: zoomIn 0.9s ease forwards;
+  }
+
+  /* Gradient text shimmer */
+  .gradient-text {
+    background: linear-gradient(90deg, #ffc857, #fff, #ffe08a);
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shimmer 3s linear infinite;
+    background-size: 300%;
+  }
+}
+
+/* ================================
+   KEYFRAMES
+===================================*/
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardPop {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0%;
+  }
+  100% {
+    background-position: 300%;
+  }
 }

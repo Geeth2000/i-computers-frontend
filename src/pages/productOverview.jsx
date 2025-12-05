@@ -50,6 +50,13 @@ export default function ProductOverview() {
             <h3 className="text-lg text-secondary/80 flex items-center">
               <CgChevronRight /> {product.category}
             </h3>
+
+            {product.altNames && product.altNames.length > 0 && (
+              <h3 className="text-md text-secondary/80">
+                {product.altNames.join(" | ")}
+              </h3>
+            )}
+
             <p className="text-md text-justify text-secondary/90  h-32 overflow-y-auto">
               {product.description}
             </p>

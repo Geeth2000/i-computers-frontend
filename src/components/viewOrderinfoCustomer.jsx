@@ -1,13 +1,9 @@
-import axios from "axios";
 import { useState } from "react";
-import toast from "react-hot-toast";
 import Modal from "react-modal";
 
-export default function ViewOrderInfo(props) {
+export default function ViewOrderInfoCustomer(props) {
   const order = props.order;
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [notes, setNotes] = useState(order.notes);
-  const [status, setStatus] = useState(order.status);
 
   if (!order) return null;
 
@@ -136,7 +132,7 @@ export default function ViewOrderInfo(props) {
                     </span>
                     <select
                       value={status}
-                      onChange={(e) => setStatus(e.target.value)}
+                      disabled
                       className="ml-4 px-2 py-1 border border-secondary/20 rounded-lg text-sm text-secondary outline-none"
                     >
                       <option
@@ -205,14 +201,8 @@ export default function ViewOrderInfo(props) {
               </p>
               <textarea
                 className="text-sm text-secondary whitespace-pre-line w-full outline-0"
-                value={notes}
-                onChange={(e) => {
-                  if (e.target.value == "") {
-                    setNotes(null);
-                  } else {
-                    setNotes(e.target.value);
-                  }
-                }}
+                value={order.notes || "No additional notes provided."}
+                disabled
               ></textarea>
             </div>
 
@@ -294,47 +284,6 @@ export default function ViewOrderInfo(props) {
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-secondary/10 flex justify-end gap-2">
-            {(order.notes != notes || order.status != status) && (
-              <button
-                onClick={() => {
-                  const token = localStorage.getItem("token");
-                  axios
-                    .put(
-                      import.meta.env.VITE_BACKEND_URL +
-                        `/orders/${order.orderId}`,
-                      {
-                        status: status,
-                        notes: notes,
-                      },
-                      {
-                        headers: {
-                          Authorization: `Bearer ${token}`,
-                        },
-                      }
-                    )
-                    .then(() => {
-                      toast.success("Order updated successfully.");
-                      window.location.reload();
-                      setIsModalOpen(false);
-                    })
-                    .catch(() => {
-                      toast.error("Failed to update order. Please try again.");
-                    });
-                }}
-                className="px-4 py-2 rounded-lg bg-secondary text-white text-sm font-medium hover:bg-secondary/90 transition"
-              >
-                Save Changes
-              </button>
-            )}
-
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 rounded-lg bg-secondary text-white text-sm font-medium hover:bg-secondary/90 transition"
-            >
-              Close
-            </button>
-          </div>
         </div>
       </Modal>
 
