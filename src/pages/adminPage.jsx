@@ -9,7 +9,7 @@ import AdminOrdersPage from "./admin/adminOrdersPage";
 import AdminReviewsPage from "./admin/AdminReviewsPage";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Loader from "../components/Loader";
+import Loader from "../components/loader";
 import AdminUsersPage from "./admin/adminUsersPage";
 
 export default function AdminPage() {

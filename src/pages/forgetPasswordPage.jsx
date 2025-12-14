@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import Loader from "../components/Loader.jsx";
+import Loader from "../components/loader";
 
 export default function ForgetPasswordPage() {
   const [otpSent, setOtpSent] = useState(false);
