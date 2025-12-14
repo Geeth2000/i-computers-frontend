@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Loader from "../../components/Loader.jsx";
+import Loader from "../components/Loader";
 import ProductCard from "../components/productCard";
 
 export default function ProductsPage() {

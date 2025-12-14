@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import Loader from "../../components/Loader.jsx";
+import Loader from "../components/Loader";
 import ImageSlider from "../components/imageSlider";
 import { CgChevronRight } from "react-icons/cg";
 import { addToCart } from "../utils/cart";

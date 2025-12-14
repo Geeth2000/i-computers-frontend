@@ -3,7 +3,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { AiOutlineProduct } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
-import Loader from "../../components/Loader.jsx";
+import Loader from "../../components/Loader";
 import uploadfile from "../../utils/mediaUplod";
 
 export default function AdminAddProductPage() {

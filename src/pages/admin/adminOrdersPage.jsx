@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import Loader from "../../components/Loader.jsx";
+import Loader from "../../components/Loader";
 import ViewOrderInfo from "../../components/viewOrderinfo";
 
 export default function AdminOrdersPage() {

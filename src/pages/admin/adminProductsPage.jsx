@@ -4,7 +4,7 @@ import { BiPlus } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import ProductDeleteButton from "../../components/productDeleteButton";
-import Loader from "../../components/Loader.jsx";
+import Loader from "../../components/Loader";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
