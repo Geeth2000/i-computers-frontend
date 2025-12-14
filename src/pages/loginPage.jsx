@@ -45,7 +45,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   async function login() {
-    console.log("login button clicked");
     console.log("Email:", email);
     setIsLoading(true);
 

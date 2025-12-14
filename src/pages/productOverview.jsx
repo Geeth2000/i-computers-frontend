@@ -11,7 +11,7 @@ export default function ProductOverview() {
   const navigate = useNavigate();
   const params = useParams();
   const [product, setProduct] = useState(null);
-  const [status, setStatus] = useState("loading"); //loading, error, success
+  const [status, setStatus] = useState("loading");
 
   useEffect(() => {
     if (status == "loading") {

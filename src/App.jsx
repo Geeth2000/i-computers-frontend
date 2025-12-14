@@ -8,8 +8,6 @@ import { Toaster } from "react-hot-toast";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import ForgetPasswordPage from "./pages/forgetPasswordPage";
 
-//193937564112-ast8885iu1u2d3sj7rrkl6j7kep3ctu1.apps.googleusercontent.com
-
 function App() {
   return (
     <GoogleOAuthProvider clientId="193937564112-ast8885iu1u2d3sj7rrkl6j7kep3ctu1.apps.googleusercontent.com">
