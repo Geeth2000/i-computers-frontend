@@ -9,9 +9,6 @@
   --color-gold: #e29816;
 }
 
-/* ================================
-   SCROLLBAR UI (UPDATED + HOVER GLOW)
-===================================*/
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -27,7 +24,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #0b2339d3; /* Accent-like hover */
+  background-color: #0b2339d3;
   box-shadow: 0 0 6px #0b2339;
 }
 
@@ -37,9 +34,6 @@
   scrollbar-color: #555 transparent;
 }
 
-/* ================================
-   GLOBAL SMOOTH ANIMATIONS
-===================================*/
 @layer utilities {
   /* Fade in */
   .animate-fadeIn {
@@ -80,10 +74,6 @@
     background-size: 300%;
   }
 }
-
-/* ================================
-   KEYFRAMES
-===================================*/
 
 @keyframes fadeIn {
   from {
