@@ -7,7 +7,7 @@ import {
   HiFilter,
   HiSortDescending,
 } from "react-icons/hi";
-import Loader from "../components/Loader";
+import Loader from "../../components/Loader.jsx";
 
 const FALLBACK_REVIEWS = [
   {

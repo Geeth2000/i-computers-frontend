@@ -1,4 +1,4 @@
-import { act, useState } from "react";
+import { useState } from "react";
 
 export default function ImageSlider(props) {
   const images = props.images;

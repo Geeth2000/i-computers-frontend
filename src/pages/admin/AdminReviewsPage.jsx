@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import Loader from "../../components/Loader";
+import Loader from "../../components/Loader.jsx";
 import { HiOutlineTrash } from "react-icons/hi";
 import { HiStar, HiOutlineStar } from "react-icons/hi";
 

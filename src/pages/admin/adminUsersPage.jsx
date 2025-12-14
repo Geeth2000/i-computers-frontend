@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { BiPlus } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { GoVerified } from "react-icons/go";
-import Loader from "../../components/Loader";
+import Loader from "../../components/Loader.jsx";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
