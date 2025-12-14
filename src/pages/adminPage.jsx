@@ -6,6 +6,7 @@ import AdminProductsPage from "./admin/adminProductsPage";
 import AdminAddProductPage from "./admin/adminAddProductPage";
 import AdminUpdateProductPage from "./admin/adminUpdateProductPage";
 import AdminOrdersPage from "./admin/adminOrdersPage";
+import AdminReviewsPage from "./admin/AdminReviewsPage";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Loader from "../components/Loader";
@@ -77,7 +78,18 @@ export default function AdminPage() {
                 <MdOutlineRateReview />
                 Reviews
               </Link>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  window.location.href = "/";
+                }}
+                className="w-full h-[50px] flex gap-[10px] items-center justify-start text-left hover:text-primary/80 transition-colors"
+              >
+                <span className="text-xl">↩</span>
+                Logout
+              </button>
             </div>
+            <div className="text-accent">dasdsfdsf</div>
           </div>
           <div className="w-[calc(100%-300px)] h-full bg-primary text-secondary border-[10px] rounded-3xl border-accent overflow-auto">
             <Routes>
@@ -89,7 +101,7 @@ export default function AdminPage() {
                 element={<AdminUpdateProductPage />}
               />
               <Route path="/users" element={<AdminUsersPage />} />
-              <Route path="/reviews" element={<h1>Reviews Page</h1>} />
+              <Route path="/reviews" element={<AdminReviewsPage />} />
             </Routes>
           </div>
         </>

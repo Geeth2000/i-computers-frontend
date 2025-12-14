@@ -8,6 +8,7 @@ import OrdersPage from "./ordersPage";
 import AboutPage from "./aboutPage";
 import ContactPage from "./contactPage";
 import ReviewPage from "./reviewPage";
+import HomeContentPage from "./homeContentPage";
 
 export default function HomePage() {
   return (
@@ -15,7 +16,7 @@ export default function HomePage() {
       <Header />
       <div className="w-full min-h-[calc(100%-100px)]">
         <Routes>
-          <Route path="/" element={<h1>Welcome to the Home Page</h1>} />
+          <Route path="/" element={<HomeContentPage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/overview/:productID" element={<ProductOverview />} />
           <Route path="/about" element={<AboutPage />} />

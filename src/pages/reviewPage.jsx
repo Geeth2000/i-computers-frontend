@@ -1,478 +1,438 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { HiStar, HiOutlineStar } from "react-icons/hi";
+import {
+  HiStar,
+  HiOutlineStar,
+  HiFilter,
+  HiSortDescending,
+} from "react-icons/hi";
 import Loader from "../components/Loader";
 
 const FALLBACK_REVIEWS = [
   {
-    _id: "offline-1",
+    _id: "1",
     name: "Dilshan Perera",
-    avatar: "https://i.pravatar.cc/120?img=5",
     rating: 5,
     headline: "Blazing fast delivery!",
     message:
-      "Ordered a full gaming rig and it arrived in less than 48 hours. Packaging was top-notch and cables were already managed. Highly recommend!",
-    createdAt: "2024-04-12T10:21:00.000Z",
+      "Ordered a full gaming rig and it arrived in less than 48 hours. Packaging was top-notch.",
+    createdAt: new Date().toISOString(),
     product: "Gladius RTX Build",
   },
   {
-    _id: "offline-2",
+    _id: "2",
     name: "Sithmi Jayasinghe",
-    avatar: "https://i.pravatar.cc/120?img=32",
     rating: 4,
-    headline: "Support team is amazing",
+    headline: "Great support, good board",
     message:
-      "Had a BIOS issue with my new motherboard and their hotline walked me through every step. Only wish the manual was clearer, hence 4 stars instead of 5.",
-    createdAt: "2024-03-29T18:05:00.000Z",
+      "Had a BIOS issue but support helped me out. The board itself is solid.",
+    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
     product: "MSI B650 Tomahawk",
-  },
-  {
-    _id: "offline-3",
-    name: "Isuru Fernando",
-    avatar: "https://i.pravatar.cc/120?img=13",
-    rating: 5,
-    headline: "Best prices locally",
-    message:
-      "Checked multiple stores in Colombo and none could match the deal I got here. Plus, the loyalty points system just scored me a free keyboard!",
-    createdAt: "2024-01-09T08:42:00.000Z",
-    product: "Asus TUF RTX 4070",
   },
 ];
 
-export default function ReviewPage() {
-  const [reviews, setReviews] = useState([]);
-  const [status, setStatus] = useState("loading");
-  const [selectedRating, setSelectedRating] = useState("all");
-  const [sortOrder, setSortOrder] = useState("newest");
-  const [newReview, setNewReview] = useState({
+/** * 1. RatingStars: Reusable star rating component
+ */
+const RatingStars = ({
+  rating,
+  max = 5,
+  onRate,
+  interactive = false,
+  size = "text-xl",
+}) => {
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: max }).map((_, i) => {
+        const starValue = i + 1;
+        const isFilled = starValue <= rating;
+        return (
+          <button
+            key={i}
+            type={interactive ? "button" : undefined}
+            onClick={interactive ? () => onRate(starValue) : undefined}
+            disabled={!interactive}
+            className={`transition-all ${
+              interactive
+                ? "hover:scale-110 focus:outline-none"
+                : "cursor-default"
+            }`}
+          >
+            {isFilled ? (
+              <HiStar className={`${size} text-amber-400 drop-shadow-sm`} />
+            ) : (
+              <HiOutlineStar className={`${size} text-gray-300`} />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+/** * 2. ReviewForm: The submission form
+ */
+const ReviewForm = ({ onReviewAdded }) => {
+  const [formData, setFormData] = useState({
     rating: 5,
+    name: "",
+    product: "",
     headline: "",
     message: "",
-    product: "",
-    name: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    let didCancel = false;
-
-    async function fetchReviews() {
-      setStatus("loading");
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/reviews`
-        );
-        if (!didCancel) {
-          const payload = Array.isArray(response.data)
-            ? response.data
-            : response.data?.data;
-          if (Array.isArray(payload) && payload.length > 0) {
-            setReviews(payload);
-            setStatus("success");
-          } else {
-            setReviews(FALLBACK_REVIEWS);
-            setStatus("fallback");
-          }
-        }
-      } catch (error) {
-        if (!didCancel) {
-          console.error("Unable to load reviews:", error);
-          setReviews(FALLBACK_REVIEWS);
-          setStatus("fallback");
-        }
-      }
-    }
-
-    fetchReviews();
-    return () => {
-      didCancel = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    setIsAuthenticated(Boolean(localStorage.getItem("token")));
-  }, []);
-
-  const filteredReviews = useMemo(() => {
-    let next = reviews;
-    if (selectedRating !== "all") {
-      const ratingValue = Number(selectedRating);
-      next = next.filter((review) => Number(review.rating) >= ratingValue);
-    }
-
-    next = [...next].sort((a, b) => {
-      const aDate = new Date(a.createdAt || 0).getTime();
-      const bDate = new Date(b.createdAt || 0).getTime();
-      return sortOrder === "newest" ? bDate - aDate : aDate - bDate;
-    });
-
-    return next;
-  }, [reviews, selectedRating, sortOrder]);
-
-  const averageRating = useMemo(() => {
-    if (!reviews.length) {
-      return 0;
-    }
-    const total = reviews.reduce(
-      (sum, review) => sum + Number(review.rating || 0),
-      0
-    );
-    return Math.round((total / reviews.length) * 10) / 10;
-  }, [reviews]);
-
-  const handleFieldChange = (event) => {
-    const { name, value } = event.target;
-    setNewReview((prev) => ({ ...prev, [name]: value }));
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRatingSelect = (value) => {
-    setNewReview((prev) => ({ ...prev, rating: value }));
-  };
-
-  const handleReviewSubmit = async (event) => {
-    event.preventDefault();
-    if (isSubmitting) {
-      return;
-    }
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const token = localStorage.getItem("token");
+
     if (!token) {
-      toast.error("Please log in to share your review.");
+      toast.error("Please log in to submit a review.");
       return;
     }
-
-    const trimmedMessage = newReview.message.trim();
-    if (!trimmedMessage) {
-      toast.error("Please write a short message about your experience.");
+    if (!formData.message.trim()) {
+      toast.error("Please enter a review message.");
       return;
     }
-
-    const payload = {
-      rating: Number(newReview.rating) || 0,
-      headline: newReview.headline.trim(),
-      message: trimmedMessage,
-      product: newReview.product.trim() || undefined,
-      name: newReview.name.trim() || undefined,
-    };
 
     setIsSubmitting(true);
     try {
-      const response = await axios.post(
+      const { data } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/reviews`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        formData,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const candidate =
-        response.data?.review || response.data?.data || response.data;
+      const newReview = data.review || data.data || data;
+      onReviewAdded(newReview);
 
-      const normalizedReview = {
-        _id: candidate?._id || `local-${Date.now()}`,
-        name: candidate?.name || payload.name || "You",
-        avatar: candidate?.avatar,
-        headline: candidate?.headline ?? payload.headline,
-        message: candidate?.message ?? candidate?.comment ?? payload.message,
-        rating: Number(candidate?.rating ?? payload.rating) || 0,
-        product: candidate?.product ?? payload.product,
-        createdAt:
-          candidate?.createdAt ||
-          candidate?.created_at ||
-          new Date().toISOString(),
-      };
-
-      setReviews((prev) => [normalizedReview, ...prev]);
-      setStatus("success");
-      setNewReview({
+      // Reset form
+      setFormData({
         rating: 5,
+        name: "",
+        product: "",
         headline: "",
         message: "",
-        product: "",
-        name: "",
       });
-      toast.success("Thank you for sharing your feedback!");
+      toast.success("Review posted successfully!");
     } catch (error) {
-      console.error("Unable to submit review:", error);
-      toast.error("We couldn't post your review. Please try again.");
+      console.error(error);
+      toast.error("Failed to post review. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/70 via-primary to-secondary/30 text-secondary px-6 md:px-12 py-14">
-      <div className="max-w-6xl mx-auto space-y-10">
-        <header className="text-center space-y-4">
-          <p className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-secondary/10 text-sm uppercase tracking-[0.2em]">
-            Voices of Our Community
-          </p>
-          <h1 className="text-4xl md:text-5xl font-bold">Customer Reviews</h1>
-          <p className="text-secondary/80 max-w-3xl mx-auto">
-            See how fellow builders and gamers rate their experience with
-            I-Computers. Honest feedback, curated from real orders.
-          </p>
-        </header>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-10">
+      <h3 className="text-xl font-bold text-gray-800 mb-1">Write a Review</h3>
+      <p className="text-gray-500 text-sm mb-6">
+        Share your thoughts on your recent purchase.
+      </p>
 
-        <section className="bg-white/10 backdrop-blur border border-white/10 rounded-3xl p-8 shadow-xl shadow-black/10">
-          <h2 className="text-2xl font-semibold mb-2">Share your experience</h2>
-          <p className="text-secondary/70 text-sm mb-6">
-            Your review helps other customers pick the right build. Ratings and
-            comments appear publicly.
-          </p>
-          <form className="space-y-5" onSubmit={handleReviewSubmit}>
-            <div>
-              <p className="text-sm uppercase tracking-[0.25em] text-secondary/60 mb-3">
-                Rate your experience
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block text-xs font-semibold uppercase text-gray-500 tracking-wider mb-2">
+            Overall Rating
+          </label>
+          <RatingStars
+            rating={formData.rating}
+            interactive={true}
+            onRate={(val) => setFormData({ ...formData, rating: val })}
+            size="text-2xl"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input
+            type="text"
+            name="name"
+            placeholder="Your Name (Optional)"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+          />
+          <input
+            type="text"
+            name="product"
+            placeholder="Product Purchased (e.g. RTX 4070)"
+            value={formData.product}
+            onChange={handleChange}
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+          />
+        </div>
+
+        <input
+          type="text"
+          name="headline"
+          placeholder="Add a headline (e.g. Best upgrade ever!)"
+          value={formData.headline}
+          onChange={handleChange}
+          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+        />
+
+        <textarea
+          name="message"
+          rows="3"
+          placeholder="How was the build quality? Shipping speed? Customer support?"
+          value={formData.message}
+          onChange={handleChange}
+          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
+        />
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
+        >
+          {isSubmitting ? "Submitting..." : "Submit Review"}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+/** * 3. ReviewCard: Display a single review
+ */
+const ReviewCard = ({ review }) => {
+  const date = new Date(review.createdAt || Date.now()).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
+
+  return (
+    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shadow-inner">
+            {review.name ? review.name[0].toUpperCase() : "A"}
+          </div>
+          <div>
+            <h4 className="font-bold text-gray-900 text-sm">
+              {review.name || "Anonymous"}
+            </h4>
+            {review.product && (
+              <p className="text-xs text-blue-600 font-medium">
+                {review.product}
               </p>
-              <div className="flex items-center gap-2">
-                {Array.from({ length: 5 }).map((_, index) => {
-                  const starValue = index + 1;
-                  return (
-                    <button
-                      key={starValue}
-                      type="button"
-                      onClick={() => handleRatingSelect(starValue)}
-                      className="transition-transform"
-                      title={`${starValue} star${starValue > 1 ? "s" : ""}`}
-                    >
-                      {starValue <= Number(newReview.rating) ? (
-                        <HiStar className="text-2xl text-gold drop-shadow" />
-                      ) : (
-                        <HiOutlineStar className="text-2xl text-white/40 hover:text-gold" />
-                      )}
-                    </button>
-                  );
-                })}
+            )}
+          </div>
+        </div>
+        <span className="text-xs text-gray-400">{date}</span>
+      </div>
+
+      <div className="mb-2">
+        <RatingStars rating={review.rating} size="text-lg" />
+      </div>
+
+      {review.headline && (
+        <h5 className="font-bold text-gray-800 text-base mb-2">
+          {review.headline}
+        </h5>
+      )}
+
+      <p className="text-gray-600 text-sm leading-relaxed flex-grow">
+        {review.message}
+      </p>
+    </div>
+  );
+};
+
+// --- Main ReviewPage Component ---
+
+export default function ReviewPage() {
+  const [reviews, setReviews] = useState([]);
+  const [status, setStatus] = useState("loading");
+  const [filterRating, setFilterRating] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+
+  // Fetch Reviews
+  useEffect(() => {
+    let mounted = true;
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/reviews`
+        );
+        if (mounted) {
+          const data = Array.isArray(res.data)
+            ? res.data
+            : res.data?.data || [];
+          setReviews(data.length ? data : FALLBACK_REVIEWS);
+          setStatus("success");
+        }
+      } catch (err) {
+        if (mounted) {
+          console.error(err);
+          setReviews(FALLBACK_REVIEWS);
+          setStatus("error");
+        }
+      }
+    };
+    fetchData();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Compute Stats & Filtered List
+  const { avgRating, processedReviews } = useMemo(() => {
+    // 1. Filter
+    let result = reviews.filter((r) =>
+      filterRating === "all" ? true : Number(r.rating) === Number(filterRating)
+    );
+
+    // 2. Sort
+    result.sort((a, b) => {
+      const d1 = new Date(a.createdAt).getTime();
+      const d2 = new Date(b.createdAt).getTime();
+      return sortOrder === "newest" ? d2 - d1 : d1 - d2;
+    });
+
+    // 3. Stats
+    const total = reviews.reduce(
+      (acc, curr) => acc + Number(curr.rating || 0),
+      0
+    );
+    const avg = reviews.length ? (total / reviews.length).toFixed(1) : "0.0";
+
+    return { avgRating: avg, processedReviews: result };
+  }, [reviews, filterRating, sortOrder]);
+
+  const handleNewReview = (review) => {
+    // Standardize the new review object to match the list structure
+    const standardized = {
+      ...review,
+      _id: review._id || Date.now().toString(),
+      createdAt: review.createdAt || new Date().toISOString(),
+      rating: Number(review.rating),
+    };
+    setReviews((prev) => [standardized, ...prev]);
+  };
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 text-gray-800 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <span className="inline-block py-1 px-3 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-widest mb-4">
+            Community Feedback
+          </span>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
+            Trusted by Builders
+          </h1>
+          <p className="text-lg text-gray-500">
+            See what our customers are saying about their custom builds,
+            components, and experience with I-Computers.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          {/* Left Column: Stats & Filters (Sticky on Desktop) */}
+          <div className="lg:col-span-4 space-y-6 h-fit lg:sticky lg:top-8">
+            {/* Stats Card */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
+              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">
+                Overall Rating
+              </h2>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-6xl font-black text-gray-900">
+                  {avgRating}
+                </span>
+                <div className="flex flex-col items-start">
+                  <RatingStars
+                    rating={Math.round(Number(avgRating))}
+                    size="text-xl"
+                  />
+                  <span className="text-xs text-gray-400 mt-1">
+                    {reviews.length} Verified Reviews
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                name="name"
-                value={newReview.name}
-                onChange={handleFieldChange}
-                placeholder="Your name (optional)"
-                className="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/5 text-secondary placeholder:text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-              <input
-                type="text"
-                name="product"
-                value={newReview.product}
-                onChange={handleFieldChange}
-                placeholder="Product (optional)"
-                className="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/5 text-secondary placeholder:text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent"
-              />
+            {/* Controls Card */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                  <HiFilter className="text-gray-400" /> Filter by Rating
+                </label>
+                <select
+                  value={filterRating}
+                  onChange={(e) => setFilterRating(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                >
+                  <option value="all">Show All Reviews</option>
+                  {[5, 4, 3, 2, 1].map((num) => (
+                    <option key={num} value={num}>
+                      {num} Stars Only
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                  <HiSortDescending className="text-gray-400" /> Sort Order
+                </label>
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+              </div>
             </div>
+          </div>
 
-            <input
-              type="text"
-              name="headline"
-              value={newReview.headline}
-              onChange={handleFieldChange}
-              placeholder="Review headline (optional)"
-              className="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/5 text-secondary placeholder:text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent"
-            />
+          {/* Right Column: Form & Review List */}
+          <div className="lg:col-span-8">
+            <ReviewForm onReviewAdded={handleNewReview} />
 
-            <textarea
-              name="message"
-              value={newReview.message}
-              onChange={handleFieldChange}
-              placeholder="Tell us about build quality, delivery, support, etc."
-              rows={4}
-              className="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/5 text-secondary placeholder:text-secondary/50 focus:outline-none focus:ring-2 focus:ring-accent resize-y"
-            />
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                <h3 className="text-xl font-bold text-gray-800">
+                  Recent Reviews
+                </h3>
+                <span className="text-sm text-gray-500">
+                  Showing {processedReviews.length} results
+                </span>
+              </div>
 
-            <div className="flex flex-col gap-2">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold uppercase tracking-[0.2em] disabled:bg-accent/50 disabled:cursor-not-allowed hover:bg-accent/90 transition"
-              >
-                {isSubmitting ? "Posting..." : "Submit review"}
-              </button>
-              {!isAuthenticated && (
-                <p className="text-xs text-secondary/60">
-                  Please log in first—your account name will appear with the
-                  review.
-                </p>
+              {processedReviews.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {processedReviews.map((review) => (
+                    <ReviewCard key={review._id} review={review} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
+                  <p className="text-gray-400">
+                    No reviews found matching your criteria.
+                  </p>
+                </div>
               )}
             </div>
-          </form>
-        </section>
-
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="col-span-2 md:col-span-1 bg-white/10 backdrop-blur border border-white/10 rounded-3xl p-6 flex flex-col justify-between shadow-xl shadow-black/10">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-secondary/60">
-                Overall
-              </p>
-              <div className="flex items-baseline gap-3 mt-3">
-                <span className="text-4xl font-bold">
-                  {averageRating.toFixed(1)}
-                </span>
-                <span className="text-lg text-secondary/70">/ 5.0</span>
-              </div>
-              <div className="flex items-center gap-1 mt-2">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <HiStar
-                    key={index}
-                    className={`text-xl ${
-                      index < Math.round(averageRating)
-                        ? "text-gold"
-                        : "text-white/30"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-            <p className="text-sm text-secondary/70 mt-4">
-              Based on {reviews.length}{" "}
-              {reviews.length === 1 ? "review" : "reviews"}.{" "}
-              {status === "fallback" && "(Showing recent highlights)"}
-            </p>
           </div>
-
-          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="flex flex-col gap-2 bg-white/10 backdrop-blur border border-white/10 rounded-2xl p-4 text-sm">
-              <span className="text-secondary/70 uppercase tracking-[0.25em]">
-                Filter by rating
-              </span>
-              <select
-                value={selectedRating}
-                onChange={(event) => setSelectedRating(event.target.value)}
-                className="bg-transparent border border-white/20 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
-              >
-                <option value="all" className="bg-primary text-secondary">
-                  All scores
-                </option>
-                {[5, 4, 3, 2, 1].map((rating) => (
-                  <option
-                    key={rating}
-                    value={rating}
-                    className="bg-primary text-secondary"
-                  >
-                    {rating} stars & up
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex flex-col gap-2 bg-white/10 backdrop-blur border border-white/10 rounded-2xl p-4 text-sm">
-              <span className="text-secondary/70 uppercase tracking-[0.25em]">
-                Sort by
-              </span>
-              <select
-                value={sortOrder}
-                onChange={(event) => setSortOrder(event.target.value)}
-                className="bg-transparent border border-white/20 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
-              >
-                <option value="newest" className="bg-primary text-secondary">
-                  Newest first
-                </option>
-                <option value="oldest" className="bg-primary text-secondary">
-                  Oldest first
-                </option>
-              </select>
-            </label>
-          </div>
-        </section>
-
-        {status === "loading" ? (
-          <div className="flex justify-center py-20">
-            <Loader />
-          </div>
-        ) : (
-          <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredReviews.map((review) => (
-              <article
-                key={review._id}
-                className="relative group bg-white/10 backdrop-blur border border-white/10 rounded-3xl p-6 flex flex-col gap-4 shadow-lg shadow-black/20 transition hover:-translate-y-1 hover:shadow-black/30"
-              >
-                <div className="flex items-center gap-3">
-                  {review.avatar ? (
-                    <img
-                      src={review.avatar}
-                      alt={review.name}
-                      className="h-12 w-12 rounded-full object-cover border border-white/20"
-                    />
-                  ) : (
-                    <div className="h-12 w-12 rounded-full bg-accent/40 text-white flex items-center justify-center text-sm font-semibold">
-                      {review.name?.[0]?.toUpperCase() || "?"}
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="text-lg font-semibold">
-                      {review.name || "Anonymous"}
-                    </h3>
-                    {review.product && (
-                      <p className="text-xs uppercase tracking-[0.2em] text-secondary/60">
-                        {review.product}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: 5 }).map((_, index) => {
-                    const ratingValue = Number(review.rating || 0);
-                    return index < ratingValue ? (
-                      <HiStar key={index} className="text-lg text-gold" />
-                    ) : (
-                      <HiOutlineStar
-                        key={index}
-                        className="text-lg text-white/30"
-                      />
-                    );
-                  })}
-                </div>
-
-                {review.headline && (
-                  <h4 className="text-xl font-semibold tracking-tight">
-                    {review.headline}
-                  </h4>
-                )}
-
-                <p className="text-secondary/85 leading-relaxed">
-                  {review.message ||
-                    review.comment ||
-                    "No additional comments provided."}
-                </p>
-
-                <time
-                  dateTime={review.createdAt}
-                  className="text-xs uppercase tracking-[0.25em] text-secondary/60 mt-auto"
-                >
-                  {new Date(review.createdAt || Date.now()).toLocaleDateString(
-                    undefined,
-                    {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    }
-                  )}
-                </time>
-              </article>
-            ))}
-
-            {!filteredReviews.length && (
-              <div className="col-span-full text-center py-20 bg-white/5 border border-dashed border-white/20 rounded-3xl">
-                <p className="text-secondary/70 text-lg">
-                  No reviews match this filter yet. Try a different rating
-                  range.
-                </p>
-              </div>
-            )}
-          </section>
-        )}
+        </div>
       </div>
     </div>
   );

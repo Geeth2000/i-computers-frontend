@@ -20,7 +20,7 @@ export default function LoginPage() {
         .then((res) => {
           localStorage.setItem("token", res.data.token);
           if (res.data.role == "admin") {
-            navigate("/admin");
+            navigate("/admin/orders");
           } else {
             navigate("/");
           }
@@ -47,7 +47,6 @@ export default function LoginPage() {
   async function login() {
     console.log("login button clicked");
     console.log("Email:", email);
-    console.log("Password:", password);
     setIsLoading(true);
 
     try {
@@ -61,7 +60,7 @@ export default function LoginPage() {
       console.log("Response from server:", res);
       localStorage.setItem("token", res.data.token);
       if (res.data.role == "admin") {
-        navigate("/admin");
+        navigate("/admin/orders");
       } else {
         navigate("/");
       }
