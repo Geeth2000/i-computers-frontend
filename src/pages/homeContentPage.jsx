@@ -249,7 +249,7 @@ export default function HomeContentPage() {
 
           <div className="relative z-10 max-w-lg space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold text-white">
-              Need a Custom Rig?
+              Need a Custom PC build?
             </h2>
             <p className="text-gray-400">
               Not sure which parts to pick? Use our PC Builder tool to ensure
