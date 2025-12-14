@@ -80,7 +80,7 @@ export default function ForgetPasswordPage() {
             </button>
 
             <p className="text-gray-300 text-sm text-center">
-              Remember password?
+              Remember Password?
               <a href="/login" className="text-yellow-400 hover:underline ml-1">
                 Back to Login
               </a>
